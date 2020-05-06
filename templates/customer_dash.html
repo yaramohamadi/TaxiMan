@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<title>Dashboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins">
+<head>
+    <script src="https://kit.fontawesome.com/752b44d127.js"></script>
+</head>
+<style>
+body,h1,h2,h3,h4,h5 {font-family: "Poppins", sans-serif}
+body {font-size:16px;}
+.w3-half img{margin-bottom:-6px;margin-top:16px;opacity:0.8;cursor:pointer}
+.w3-half img:hover{opacity:1}
+</style>
+<body>
+
+<!-- Sidebar/menu -->
+<nav class="w3-sidebar w3-red w3-collapse w3-top w3-large w3-padding" style="z-index:3;width:300px;font-weight:bold;" id="mySidebar"><br>
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-button w3-hide-large w3-display-topleft" style="width:100%;font-size:22px">Close Menu</a>
+  <div class="w3-container">
+    <h3 class="w3-padding-64" ><b>TAXI<br>MAN</b></h3>
+  </div>
+  <div class="w3-bar-block">
+    <a href="/dash/" class="w3-bar-item w3-button w3-hover-white">Dashboard</a>
+    <a href="/signout/"  class="w3-bar-item w3-button w3-hover-white">Sign Out</a>
+    <a href="#CommonAddress"  class="w3-bar-item w3-button w3-hover-white">Common Addresses</a>
+    <a href="#trips"  class="w3-bar-item w3-button w3-hover-white">Trip Log</a>
+      <br>
+      <br>
+    <a class="w3-bar-item w3-button w3-hover-yellow" onclick="newtrip_click()">New Trip</a>
+  </div>
+</nav>
+
+<!-- Top menu on small screens -->
+<header class="w3-container w3-top w3-hide-large w3-red w3-xlarge w3-padding">
+  <a href="javascript:void(0)" class="w3-button w3-red w3-margin-right" onclick="w3_open()">☰</a>
+  <span>TAXI MAN</span>
+  <span>Customer</span>
+</header>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- !PAGE CONTENT! -->
+<div class="w3-main" style="margin-left:340px;margin-right:40px">
+
+  <!-- Header -->
+  <div class="w3-container" style="margin-top:80px" id="showcase">
+    <h1 class="w3-jumbo"><b>TAXI MAN</b></h1>
+    <h1 class="w3-xxxlarge w3-text-red"><b>Order taxi with reasonable price online!</b></h1>
+    <hr style="width:50px;border:5px solid red" class="w3-round">
+  </div>
+
+  {% if discount %}
+      <div class="w3-panel w3-rightbar w3-cyan w3-text-white">
+          <h6>Enjoy a discount of <b>{{ discount.percentage }}%</b> for your next trip until <b>{{ discount.expire_date }}</b>.</h6>
+      </div>
+  {% endif %}
+
+  {% for p in prizeamount %}
+      <div class="w3-panel w3-rightbar w3-teal w3-text-white">
+          <h6>Wow! You have done <b>{{ p.trip_count }}</b> trips so far! Thank you for trusting us. Your wallet has been filled by <b>{{ p.amount }}$.</b></h6>
+      </div>
+  {% endfor %}
+
+  <div id="Profile" class="w3-row-padding">
+    <div class="w3-card w3-round w3-white">
+        <div class="w3-container">
+         <h4 class="w3-center">My Profile <a href="/customer_editprofile/" class="w3-button"><i class="fas fa-pencil-alt"></i></a></h4>
+         <hr>
+         <p><i class="fas fa-user fa-fw w3-margin-right w3-text-theme"></i>{{ customer.user.first_name }} {{ customer.user.last_name }}, {{ customer.customer_city }}</p>
+         <p><i class="fas fa-at fa-fw w3-margin-right w3-text-theme"></i> Username: {{ customer.user.username }}</p>
+         <p><i class="fas fa-envelope fa-fw w3-margin-right w3-text-theme"></i> Email: {{ customer.user.email }}</p>
+         <p><i class="fas fa-wallet fa-fw w3-margin-right w3-text-theme"></i> Wallet: {{ customer.wallet }}     <span class="w3-text-green w3-button" onclick="document.getElementById('fillinyowallet').style.display='block'">+</span></p>
+        <p><i class="fas fa-car fa-fw w3-margin-right w3-text-theme"></i> total number of trips: {{ no_trips }}</p>
+        <p><i class="fas fa-check fa-fw w3-margin-right w3-text-theme"></i> average score: {{ avg }}</p>
+        </div>
+      </div>
+  </div>
+
+    <br>
+
+   <div id="CommonAddress" class="w3-row-padding">
+    <div class="w3-card w3-round w3-white">
+        <div class="w3-container">
+         <h4 class="w3-center">Common Addresses </h4>
+         <hr>
+        {% for c in common_address %}
+            <form method="post" action="/customer_deleteaddress/#CommonAddress">
+            <input name="commonadd" type="hidden" value={{ c.id }} >
+            <p><i class="fas fa-map-marker-alt fa-fw w3-margin-right w3-text-theme"></i>Long : {{ c.long_position }} Lat : {{ c.lat_position }}<button type="submit" class="w3-button"><i class='fas fa-trash' style='color:red'></i></button></p>
+           </form>
+            {% empty %}
+            <h6>You currently have no addresses stored here. but you can add up to 5 of them for your convenience.</h6>
+        {% endfor %}
+        {% if common_address|length < 5 %}
+            <p><span class="w3-text-green w3-button" onclick="document.getElementById('newcommonaddress').style.display='block'">+</span></p>
+        {% else %}
+            <h6>To add a new address, you gotta delete one of your oldies first.</h6>
+        {% endif %}
+        </div>
+      </div>
+  </div>
+
+    <br>
+
+   <div id="trips" class="w3-row-padding">
+       <div class="w3-card w3-round w3-white">
+      {% if pendingmoney %}
+        <div class="w3-container ">
+            <h4 class="w3-center w3-yellow">Trip Pending... </h4>
+            <p><i class="fas fa-clock fa-fw w3-margin-right w3-text-theme"></i> Created at : {{ pendingmoney.trip.date_time }}</p>
+            <p><i class="fas fa-search-location fa-fw w3-margin-right w3-text-theme"></i> Pick up longitude : {{ pendingmoney.trip.start_long_position }}</p>
+            <p><i class="fas fa-search-location fa-fw w3-margin-right w3-text-theme"></i> Pick up latitude : {{ pendingmoney.trip.start_long_position }}</p>
+            <p><i class="fas fa-dollar-sign fa-fw w3-margin-right w3-text-theme"></i> Cost : {{ pendingmoney.amount }}
+            {% if discount %}
+            <p><i class="fas fa-percent fa-fw w3-margin-right w3-text-theme"></i> Discount: {{ discount.percentage }}%</p>
+            {% endif %}
+            <p><i class="fas fa-question fa-fw w3-margin-right w3-text-theme"></i> Payment method : {% if pendingmoney.elec_cash == 1 %}Electronic{% else %}Cash{% endif %}</p>
+            <form method="POST", action="/customer_deletetrip/">
+                <input name="tripdelete" type="hidden" value={{ pendingmoney.trip.id }} >
+                <p><i class=" fa-fw w3-margin-right w3-text-theme"></i>Second thoughts? Too expensive? Cancel your trip now<button type="submit" class="w3-button"><i class='fas fa-trash' style='color:red'></i></button></p>
+            </form>
+            <hr>
+        </div>
+      {% endif %}
+        <div class="w3-container">
+            <h4 class="w3-center">Trip Log</h4>
+            {% for m in moneytransfers %}
+                <hr>
+                <p><i class="fas fa-clock fa-fw w3-margin-right w3-text-theme"></i> Created at : {{ m.trip.date_time }}</p>
+                <p><i class="fas fa-dollar-sign fa-fw w3-margin-right w3-text-theme"></i> Driver : {{ m.trip.driver.user.first_name }} {{ m.trip.driver.user.last_name }}
+                <p><i class="fas fa-dollar-sign fa-fw w3-margin-right w3-text-theme"></i> Car : {{ m.trip.driver.car.car_model }} {{ m.trip.driver.car.plate }}
+                <p><i class="fas fa-dollar-sign fa-fw w3-margin-right w3-text-theme"></i> Cost : {{ m.amount }}
+                <p><i class="fas fa-question fa-fw w3-margin-right w3-text-theme"></i> Payment method : {% if m.elec_cash == 1 %}Electronic{% else %}Cash{% endif %}</p>
+                <p>
+                    {% if m.trip.score.driver_score > 0 %}
+                        <i class="	fas fa-star fa-fw w3-margin-right w3-text-theme"></i>Driver Score : {{ m.trip.score.driver_score }} {% if m.trip.score.comment_text %}{{ m.trip.score.comment_text }} {% endif %}
+                    {% else %}
+                        <form method="post" action="/customer_scoreyodrivah_click/">
+                            <input name="trip_id" type="hidden" value={{ m.trip.id }} >
+                            <button type="submit" class="w3-button w3-green">Add Score</button>
+                        </form>
+                    {% endif %}
+                </p>
+            {% endfor %}
+        </div>
+      </div>
+   </div>
+  </div>
+
+
+
+    <!-- wallet modal -->
+  <div id="fillinyowallet" class="w3-modal">
+      <div class="w3-modal-content w3-animate-top w3-card-4">
+        <header class="w3-container w3-red">
+          <span onclick="document.getElementById('fillinyowallet').style.display='none'" class="w3-button w3-display-topright">&times;</span>
+          <h2><i class="far fa-money-bill-alt"></i> Fill in yo Wallet</h2>
+        </header>
+        <div class="w3-container">
+          <form method="POST" action="/customer_fillinyowallet/">
+              <div class="w3-row">
+                  <div class="w3-col w3-threequarter">
+              <p>amount   :<input name="amount" class="w3-input" type="number" value =0 min="0" max="50" step="0.05"></p>
+                      </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+            <button class="w3-button w3-red w3-margin-top" type="submit">  Fill it!</button>
+                      </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- modal end -->
+
+    <!-- new trip modal -->
+  <div id="newtrip" class="w3-modal">
+      <div class="w3-modal-content w3-animate-top w3-card-4">
+        <header class="w3-container w3-red">
+          <span onclick=" document.getElementById('newtrip').style.display='none'"
+          class="w3-button w3-display-topright">&times;</span>
+          <h2><i class="fas fa-car-side"></i> Let's get trippin!</h2>
+        </header>
+        <div class="w3-container">
+        {% if  pendingmoney %}
+            <h6>You already have requested a trip! Cancel it, or come back later.
+        {% else %}
+          <form method="POST" action="/customer_newtrip/#trips">
+
+              <div class="w3-row" id="whereyouat">
+                  <h5>Where you at?</h5>
+                  <div class="w3-col w3-threequarter">
+
+
+
+                      <div id="map"></div>
+    <script>
+      // Note: This example requires that you consent to location sharing when
+      // prompted by your browser. If you see the error "The Geolocation service
+      // failed.", it means you probably did not give permission for the browser to
+      // locate you.
+      var map, infoWindow;
+      function initMap() {
+        map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: -34.397, lng: 150.644},
+          zoom: 6
+        });
+        infoWindow = new google.maps.InfoWindow;
+
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            var pos = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+
+            infoWindow.setPosition(pos);
+            infoWindow.setContent('Location found.');
+            infoWindow.open(map);
+            map.setCenter(pos);
+          }, function() {
+            handleLocationError(true, infoWindow, map.getCenter());
+          });
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      }
+
+      function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+                              'Error: The Geolocation service failed.' :
+                              'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1cqbSEBmnTJRvqXNm1dpgzlWBtXmonUw&callback=initMap">
+    </script>
+
+
+
+
+
+
+
+
+
+                      <p>Latitude   :<input id="newtrip1_lat" name="start_latitude" class="w3-input" type="number" placeholder="{{ cur_pos.lat }}" required value =none min="0" max="5000" step="0.001"></p>
+                      <p>Longitude   :<input id="newtrip1_long" name="start_longitude" class="w3-input" type="number" placeholder="{{ cur_pos.long}}" required value =none min="0" max="5000" step="0.001"></p>
+                      <select onchange="newtrip1_selectchange()" id="newtrip1_select" class="w3-select w3-border w3-margin-bottom" name="option">
+                       <option value="none"></option>
+                        {% for c in common_address %}
+                            <option value="{{ c.long_position }} {{ c.lat_position }}" >Long : {{ c.long_position }} Lat : {{ c.lat_position }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+                        <button onclick="newtrip_next1()" class="w3-button w3-red" type="button">Next</button>
+                  </div>
+              </div>
+
+              <div class="w3-row" id="whereyougoing">
+                  <h5>Where do you want to go?</h5>
+                  <div class="w3-col w3-threequarter">
+                      <p>Latitude   :<input id="newtrip2_lat" name="dest_latitude" class="w3-input" type="number" required value =none min="0" max="5000" step="0.001"></p>
+                      <p>Longitude   :<input id="newtrip2_long" name="dest_longitude" class="w3-input" type="number" required value =none min="0" max="5000" step="0.001"></p>
+                      <select onchange="newtrip2_selectchange()" id="newtrip2_select" class="w3-select w3-border w3-margin-bottom" name="option">
+                        <option value="none"></option>
+                        {% for c in common_address %}
+                            <option value="{{ c.long_position }} {{ c.lat_position }}" >Long : {{ c.long_position }} Lat : {{ c.lat_position }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+                      <button onclick="newtrip_next2()" class="w3-button w3-red" type="button">Next</button>
+                  </div>
+              </div>
+
+              <div class="w3-row" id="whereyougoing2">
+                  <h5>Where will you go next?</h5>
+                  <div class="w3-col w3-threequarter">
+                      <p>Layover (minutes)   :<input name="layover1" class="w3-input" type="number" value =none min=0 step="1" ></p>
+                      <p>Latitude   :<input id="newtrip3_lat" name="lay_latitude1" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <p>Longitude   :<input id="newtrip3_long" name="lay_longitude1" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <select onchange="newtrip3_selectchange()" id="newtrip3_select" class="w3-select w3-border w3-margin-bottom" name="option">
+                        <option value="none"></option>
+                        {% for c in common_address %}
+                            <option value="{{ c.long_position }} {{ c.lat_position }}" >Long : {{ c.long_position }} Lat : {{ c.lat_position }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+                      <button onclick="newtrip_next3()" class="w3-button w3-red" type="button">Next</button>
+                  </div>
+              </div>
+
+              <div class="w3-row" id="whereyougoing3">
+                  <h5>And after that?</h5>
+                  <div class="w3-col w3-threequarter">
+                      <p>Layover (minutes)   :<input name="layover2" class="w3-input" type="number" value =none min=0 step="1" ></p>
+                      <p>Latitude   :<input id="newtrip4_lat" name="lay_latitude2" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <p>Longitude   :<input id="newtrip4_long" name="lay_longitude2" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <select onchange="newtrip4_selectchange()" id="newtrip4_select" class="w3-select w3-border w3-margin-bottom" name="option">
+                        <option value="none"></option>
+                        {% for c in common_address %}
+                            <option value="{{ c.long_position }} {{ c.lat_position }}" >Long : {{ c.long_position }} Lat : {{ c.lat_position }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+                      <button onclick="newtrip_next4()" class="w3-button w3-red" type="button">Next</button>
+                  </div>
+              </div>
+
+              <div class="w3-row" id="whereyougoing4">
+                  <h5>Where will you go last?</h5>
+                  <div class="w3-col w3-threequarter">
+                      <p>Layover (minutes)   :<input name="layover3" class="w3-input" type="number" value =none min=0 step="1" ></p>
+                      <p>Latitude   :<input id="newtrip5_lat" name="lay_latitude3" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <p>Longitude   :<input id="newtrip5_long" name="lay_longitude3" class="w3-input" type="number" value =none  step="0.001"></p>
+                      <select onchange="newtrip5_selectchange()" id="newtrip5_select" class="w3-select w3-border w3-margin-bottom" name="option">
+                        <option value="none"></option>
+                        {% for c in common_address %}
+                            <option value="{{ c.long_position }} {{ c.lat_position }}" >Long : {{ c.long_position }} Lat : {{ c.lat_position }}</option>
+                        {% endfor %}
+                      </select>
+                  </div>
+              </div>
+
+              <div class="w3-row" id="submityourtrip">
+                  <div class="w3-col w3-threequarter"><h5>You can have up to 4 destinations. Submit your trip when you're ready! uncheck the box If you're going to pay with cash</h5></div>
+                  <div class="w3-col w3-quarter"><p><input name="elec_cash" checked type="checkbox"  ></p><button class="w3-button w3-red w3-margin-left" type="submit">  Submit!</button></div>
+              </div>
+          </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+    <!-- modal end -->
+
+    <!-- new common address modal -->
+  <div id="newcommonaddress" class="w3-modal">
+      <div class="w3-modal-content w3-animate-top w3-card-4">
+        <header class="w3-container w3-red">
+          <span onclick="document.getElementById('newcommonaddress').style.display='none'"
+          class="w3-button w3-display-topright">&times;</span>
+          <h2><i class="fas fa-map-marked-alt"></i> Add yo Address</h2>
+        </header>
+        <div class="w3-container">
+          <form method="POST" action="/customer_newcommonaddress/#CommonAddress">
+              <div class="w3-row">
+                  <div class="w3-col w3-threequarter">
+                      <p>Latitude   :<input name="latitude" class="w3-input" type="number" value =0 min="0" max="5000" step="0.001"></p>
+                      <p>Longitude   :<input name="longitude" class="w3-input" type="number" value =0 min="0" max="5000" step="0.001"></p>
+                  </div>
+                  <div class="w3-col w3-quarter w3-margin-top" >
+                      <button class="w3-button w3-red w3-margin-top" type="submit">  Add it!</button>
+                  </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- modal end -->
+
+<!-- End page content -->
+</div>
+
+<!-- W3.CSS Container -->
+<div class="w3-light-grey w3-container w3-padding-32" style="margin-top:75px;padding-right:58px"><p class="w3-right">Powered by <a href="https://www.YaraMohamadi.com/" title="W3.CSS" target="_blank" class="w3-hover-opacity">Yara.Mohamadi</a></p></div>
+
+<script>
+
+function newtrip_click(){
+    document.getElementById('newtrip').style.display='block';
+    document.getElementById('whereyouat').style.display='block';
+    document.getElementById('whereyougoing').style.display='none';
+    document.getElementById('whereyougoing2').style.display='none';
+    document.getElementById('whereyougoing3').style.display='none';
+    document.getElementById('whereyougoing4').style.display='none';
+    document.getElementById('submityourtrip').style.display='none';
+}
+
+function newtrip_next1(){
+    document.getElementById('whereyouat').style.display='none';
+    document.getElementById('whereyougoing').style.display='block';
+    document.getElementById('whereyougoing2').style.display='none';
+    document.getElementById('whereyougoing3').style.display='none';
+    document.getElementById('whereyougoing4').style.display='none';
+    document.getElementById('submityourtrip').style.display='block';
+}
+
+function newtrip_next2(){
+    document.getElementById('whereyouat').style.display='none';
+    document.getElementById('whereyougoing').style.display='none';
+    document.getElementById('whereyougoing2').style.display='block';
+    document.getElementById('whereyougoing3').style.display='none';
+    document.getElementById('whereyougoing4').style.display='none';
+    document.getElementById('submityourtrip').style.display='block';
+}
+
+function newtrip_next3(){
+    document.getElementById('whereyouat').style.display='none';
+    document.getElementById('whereyougoing').style.display='none';
+    document.getElementById('whereyougoing2').style.display='none';
+    document.getElementById('whereyougoing3').style.display='block';
+    document.getElementById('whereyougoing4').style.display='none';
+    document.getElementById('submityourtrip').style.display='block';
+}
+
+function newtrip_next4(){
+    document.getElementById('whereyouat').style.display='none';
+    document.getElementById('whereyougoing').style.display='none';
+    document.getElementById('whereyougoing2').style.display='none';
+    document.getElementById('whereyougoing3').style.display='none';
+    document.getElementById('whereyougoing4').style.display='block';
+    document.getElementById('submityourtrip').style.display='block';
+}
+
+//new trip select
+function newtrip1_selectchange() {
+    var addresses = document.getElementById("newtrip1_select").value;
+    var arr = addresses.split(" ");
+    document.getElementById("newtrip1_long").value = arr[0];
+    document.getElementById("newtrip1_lat").value = arr[1];
+}
+
+function newtrip2_selectchange() {
+    var addresses = document.getElementById("newtrip2_select").value;
+    var arr = addresses.split(" ");
+    document.getElementById("newtrip2_long").value = arr[0];
+    document.getElementById("newtrip2_lat").value = arr[1];
+}
+
+function newtrip3_selectchange() {
+    var addresses = document.getElementById("newtrip3_select").value;
+    var arr = addresses.split(" ");
+    document.getElementById("newtrip3_long").value = arr[0];
+    document.getElementById("newtrip3_lat").value = arr[1];
+}
+
+function newtrip4_selectchange() {
+    var addresses = document.getElementById("newtrip4_select").value;
+    var arr = addresses.split(" ");
+    document.getElementById("newtrip4_long").value = arr[0];
+    document.getElementById("newtrip4_lat").value = arr[1];
+}
+
+function newtrip5_selectchange() {
+    var addresses = document.getElementById("newtrip5_select").value;
+    var arr = addresses.split(" ");
+    document.getElementById("newtrip5_long").value = arr[0];
+    document.getElementById("newtrip5_lat").value = arr[1];
+}
+
+
+// Script to open and close sidebar
+function w3_open() {
+  document.getElementById("mySidebar").style.display = "block";
+  document.getElementById("myOverlay").style.display = "block";
+}
+
+function w3_close() {
+  document.getElementById("mySidebar").style.display = "none";
+  document.getElementById("myOverlay").style.display = "none";
+}
+
+// Modal Image Gallery
+function onClick(element) {
+  document.getElementById("img01").src = element.src;
+  document.getElementById("modal01").style.display = "block";
+  var captionText = document.getElementById("caption");
+  captionText.innerHTML = element.alt;
+}
+</script>
+
+</body>
+</html>

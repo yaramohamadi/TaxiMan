@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<title>TaxiMan - Sign in</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Raleway">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body,h1,h2,h3,h4,h5,h6 {font-family: "Raleway", Arial, Helvetica, sans-serif}
+.myLink {display: none}
+</style>
+<body class="w3-light-grey">
+
+{% load static %}
+
+<!-- Navigation Bar -->
+<div class="w3-bar w3-white w3-border-bottom w3-xlarge">
+  <a href="#" class="w3-bar-item w3-button w3-text-red w3-hover-red"><b><i class="fa fa-map-marker w3-margin-right"></i>TAXI MAN</b></a>
+</div>
+
+<!-- Header -->
+<header class="w3-display-container w3-content w3-hide-small" style="max-width:1500px">
+  <img class="w3-image" src="/static/london2.jpg" alt="London" width="1500" height="700">
+  <div class="w3-display-middle" style="width:65%">
+    <div class="w3-bar w3-black">
+      <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'DriverSignin');"><i class="fa fa-plane w3-margin-right"></i>Driver Sign in</button>
+      <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'DriverSignup');"><i class="fa fa-bed w3-margin-right"></i>Sign up</button>
+      <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'CustomerSignin');"><i class="fa fa-car w3-margin-right"></i>Customer Sign in</button>
+      <button class="w3-bar-item w3-button tablink" onclick="openLink(event, 'CustomerSignup');"><i class="fa fa-car w3-margin-right"></i>Sign up</button>
+    </div>
+
+    <!-- Tabs -->
+    <div id="DriverSignin" class="w3-container w3-white w3-padding-16 myLink">
+      <h3>Let's start earning money!</h3>
+        <form class="w3-container" method="POST" action="/driver_signin_click/">
+            {% csrf_token %}
+            {{ driver_sign_in_form.as_p }}
+          <p><button class="w3-btn w3-blue-grey" type="submit">Sign In</button></p>
+          {% if message %}
+              <div class="w3-panel w3-rightbar w3-red">
+                  <h5 style="font-family: Titr;">{{ message }}</h5>
+              </div>
+          {% endif %}
+          <p>Don't have an account? Sign up!</p>
+        </form>
+    </div>
+
+    <div id="DriverSignup" class="w3-container w3-white w3-padding-16 myLink">
+      <h3>Earn so much money with us</h3>
+        <form class="w3-container" method="POST" action="/driver_signup_click/">
+            {% csrf_token %}
+            {{ driver_sign_up_form.as_p }}
+          <p><button class="w3-btn w3-blue-grey" type="submit">Sign Up</button></p>
+          {% if message %}
+              <div class="w3-panel w3-rightbar w3-red">
+                  <h5 style="font-family: Titr;">{{ message }}</h5>
+              </div>
+          {% endif %}
+        </form>
+    </div>
+
+    <div id="CustomerSignin" class="w3-container w3-white w3-padding-16 myLink">
+      <h3>Best Taxi website in the world!</h3>
+         <form class="w3-container" method="POST" action="/customer_signin_click/">
+            {% csrf_token %}
+            {{ customer_sign_in_form.as_p }}
+          <p><button class="w3-btn w3-blue-grey" type="submit">Sign In</button></p>
+          {% if message %}
+              <div class="w3-panel w3-rightbar w3-red">
+                  <h5 style="font-family: Titr;">{{ message }}</h5>
+              </div>
+          {% endif %}
+          <p>Don't have an account? Sign up!</p>
+        </form>
+    </div>
+
+    <div id="CustomerSignup" class="w3-container w3-white w3-padding-16 myLink">
+      <h3>Find the best taxis with the best prices</h3>
+         <form class="w3-container" method="POST" action="/customer_signup_click/">
+            {% csrf_token %}
+            {{ customer_sign_up_form.as_p }}
+          <p><button class="w3-btn w3-blue-grey" type="submit">Sign Up</button></p>
+          {% if message %}
+              <div class="w3-panel w3-rightbar w3-red">
+                  <h5 style="font-family: Titr;">{{ message }}</h5>
+              </div>
+          {% endif %}
+        </form>
+    </div>
+
+  </div>
+</header>
+
+<!-- Page content -->
+<div class="w3-content" style="max-width:1100px;">
+<!-- Footer -->
+<footer class="w3-container w3-center w3-opacity w3-margin-bottom">
+  <p>Powered by <a href="https://www.Yaramohamadi.com" target="_blank" class="w3-hover-text-green">Yara Mohamadi</a></p>
+</footer>
+
+<script>
+// Tabs
+function openLink(evt, linkName) {
+  var i, x, tablinks;
+  x = document.getElementsByClassName("myLink");
+  for (i = 0; i < x.length; i++) {
+    x[i].style.display = "none";
+  }
+  tablinks = document.getElementsByClassName("tablink");
+  for (i = 0; i < x.length; i++) {
+    tablinks[i].className = tablinks[i].className.replace(" w3-red", "");
+  }
+  document.getElementById(linkName).style.display = "block";
+  evt.currentTarget.className += " w3-red";
+}
+
+// Click on the first tablink on load
+document.getElementsByClassName("tablink")[0].click();
+</script>
+
+</body>
+</html>
